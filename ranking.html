@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Rankings - Rock Paper Scissors</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="transition.css" />
+
+    <style>
+      :root {
+        --primary-color: #00ff00;
+        --secondary-color: #ff00ff;
+        --accent-color: #ffff00;
+        --background-color: #000000;
+        --text-color: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Press Start 2P", cursive;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 800px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        color: var(--primary-color);
+        text-shadow: 4px 4px var(--secondary-color);
+        animation: glitch 1s infinite;
+      }
+
+      @keyframes glitch {
+        0% {
+          text-shadow: 4px 4px var(--secondary-color);
+        }
+        25% {
+          text-shadow: -4px -4px var(--secondary-color);
+        }
+        50% {
+          text-shadow: 4px -4px var(--secondary-color);
+        }
+        75% {
+          text-shadow: -4px 4px var(--secondary-color);
+        }
+        100% {
+          text-shadow: 4px 4px var(--secondary-color);
+        }
+      }
+
+      .stats-container {
+        width: 100%;
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 2px solid var(--primary-color);
+        border-radius: 8px;
+        padding: 1rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 2px solid var(--primary-color);
+      }
+
+      th,
+      td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 2px solid var(--primary-color);
+      }
+      .volume-control {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        background-color: rgba(0, 0, 0, 0.7);
+        border: 2px solid var(--primary-color);
+        padding: 0.5rem;
+        border-radius: 5px;
+        z-index: 3; /* Ensure it is above other elements */
+      }
+
+      .volume-control input {
+        width: 100px;
+      }
+      th {
+        background-color: var(--primary-color);
+        color: var(--background-color);
+      }
+
+      tr:nth-child(even) {
+        background-color: rgba(0, 255, 0, 0.1);
+      }
+
+      tr:hover {
+        background-color: rgba(255, 255, 0, 0.2);
+      }
+
+      .back-button {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        font-family: "Press Start 2P", cursive;
+        background-color: var(--primary-color);
+        color: var(--background-color);
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .back-button:hover {
+        background-color: var(--accent-color);
+      }
+
+      .crt::before {
+        content: " ";
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.06),
+            rgba(0, 255, 0, 0.02),
+            rgba(0, 0, 255, 0.06)
+          );
+        z-index: 2;
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        th,
+        td {
+          padding: 0.5rem;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .username-input {
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .username-input input {
+        padding: 0.5rem;
+        font-size: 1rem;
+        border: 2px solid var(--primary-color);
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+      }
+
+      .username-input button {
+        padding: 0.5rem 1rem;
+        background-color: var(--primary-color);
+        color: var(--background-color);
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .username-input button:hover {
+        background-color: var(--accent-color);
+      }
+    </style>
+  </head>
+  <audio id="game-audio" src="surf.mp3" preload="auto" autoplay></audio>
+  <body class="crt">
+    <!-- Volume Control -->
+    <div class="volume-control">
+      <label for="volume">Volume:</label>
+      <input type="range" id="volume" min="0" max="1" step="0.1" value="1" />
+    </div>
+
+    <div class="container">
+      <h1 class="fade-in">Player Rankings</h1>
+
+      <div class="username-input fade-in">
+        <input type="text" id="username" placeholder="Enter your username" />
+        <button id="submit-username">Submit Username</button>
+      </div>
+
+      <div class="stats-container fade-in">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Total Wins</th>
+              <th>Total Losses</th>
+              <th>Highest Win Streak</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-body">
+            <!-- Rankings will be populated here -->
+          </tbody>
+        </table>
+      </div>
+
+      <a href="index.html" class="back-button fade-in">Back to Main Page</a>
+    </div>
+
+    <script>
+      let usernameSubmitted = false; // Track if username has been submitted
+
+      document
+        .getElementById("submit-username")
+        .addEventListener("click", () => {
+          const usernameInput = document.getElementById("username");
+          const username = usernameInput.value.trim();
+
+          // Retrieve scores from local storage
+          const wins = localStorage.getItem("wins")
+            ? parseInt(localStorage.getItem("wins"))
+            : 0;
+          const losses = localStorage.getItem("losses")
+            ? parseInt(localStorage.getItem("losses"))
+            : 0;
+          const highestWinStreak = localStorage.getItem("highestWinStreak")
+            ? parseInt(localStorage.getItem("highestWinStreak"))
+            : 0;
+
+          if (username && !usernameSubmitted) {
+            // Save username and scores to local storage
+            const storedRankings =
+              JSON.parse(localStorage.getItem("rankings")) || [];
+            storedRankings.push({ username, wins, losses, highestWinStreak });
+            localStorage.setItem("rankings", JSON.stringify(storedRankings));
+            usernameSubmitted = true; // Mark username as submitted
+            usernameInput.value = ""; // Clear input field
+            loadRankings(); // Refresh rankings
+          } else if (usernameSubmitted) {
+            alert("You can only submit your username once!");
+          } else {
+            alert("Please enter a valid username!");
+          }
+        });
+
+      function loadRankings() {
+        const rankingBody = document.getElementById("ranking-body");
+        const storedRankings =
+          JSON.parse(localStorage.getItem("rankings")) || [];
+
+        // Sort rankings by wins, then by losses, then by highest win streak
+        storedRankings.sort((a, b) => {
+          if (b.wins !== a.wins) {
+            return b.wins - a.wins; // Sort by wins descending
+          } else if (a.losses !== b.losses) {
+            return a.losses - b.losses; // Sort by losses ascending
+          } else {
+            return b.highestWinStreak - a.highestWinStreak; // Sort by highest win streak descending
+          }
+        });
+
+        rankingBody.innerHTML = ""; // Clear existing rankings
+
+        storedRankings.forEach((player) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td>${player.username}</td>
+                    <td>${player.wins}</td>
+                    <td>${player.losses}</td>
+                    <td>${player.highestWinStreak}</td>
+                `;
+          rankingBody.appendChild(row);
+        });
+
+        if (storedRankings.length === 0) {
+          const emptyRow = document.createElement("tr");
+          emptyRow.innerHTML =
+            '<td colspan="4">No rankings available yet.</td>';
+          rankingBody.appendChild(emptyRow);
+        }
+      }
+
+      window.onload = loadRankings;
+
+      // Removed click sound effect
+
+      const audio = document.querySelector("audio");
+      const volumeControl = document.getElementById("volume");
+
+      volumeControl.addEventListener("input", (event) => {
+        audio.volume = event.target.value;
+      });
+    </script>
+  </body>
+</html>

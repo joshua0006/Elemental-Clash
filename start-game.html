@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retro Elemental Clash</title>
+    <link rel="stylesheet" href="transition.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+      :root {
+        --primary-color: #39ff14;
+        --secondary-color: #ff00ff;
+        --background-color: #000000;
+        --text-color: #ffffff;
+        --border-color: #4169e1;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Press Start 2P", cursive;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding: 2rem;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        color: var(--primary-color);
+        text-shadow: 4px 4px var(--secondary-color);
+      }
+      .score-board {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 2rem;
+      }
+
+      .score {
+        font-size: 1rem;
+        padding: 1rem;
+        background-color: var(--background-color);
+        border: 4px solid var(--border-color);
+        box-shadow: 0 0 10px var(--primary-color);
+      }
+
+      .game-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .player,
+      .computer {
+        background-color: var(--background-color);
+        padding: 2rem;
+        border: 4px solid var(--border-color);
+        font-size: 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 150px;
+        box-shadow: 0 0 10px var(--primary-color);
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      button {
+        font-family: "Press Start 2P", cursive;
+        font-size: 1.5rem;
+        padding: 1rem;
+        background-color: var(--background-color);
+        color: var(--primary-color);
+        border: 4px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      button:hover {
+        background-color: var(--primary-color);
+        color: var(--background-color);
+        box-shadow: 0 0 15px var(--primary-color);
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      #game-over-btn {
+        font-size: 1rem;
+        padding: 1rem 2rem;
+        background-color: var(--secondary-color);
+        color: var(--background-color);
+        border-color: var(--primary-color);
+      }
+
+      @media (max-width: 600px) {
+        .game-area {
+          grid-template-columns: 1fr;
+        }
+
+        .buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        button {
+          width: 100%;
+          max-width: 200px;
+        }
+      }
+
+      .crt::before {
+        content: " ";
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.06),
+            rgba(0, 255, 0, 0.02),
+            rgba(0, 0, 255, 0.06)
+          );
+        z-index: 2;
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+      }
+
+      .popup-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        color: var(--primary-color);
+        background-color: rgba(0, 0, 0, 0.8);
+        padding: 2rem;
+        border: 4px solid var(--primary-color);
+        box-shadow: 0 0 20px var(--primary-color);
+        z-index: 10;
+        animation: fadeIn 0.5s ease-in-out;
+        text-align: center;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .volume-control {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        background-color: rgba(0, 0, 0, 0.7);
+        border: 2px solid var(--primary-color);
+        padding: 0.5rem;
+        border-radius: 5px;
+      }
+
+      .volume-control input {
+        width: 100px;
+      }
+
+      /* Add this CSS for animations */
+      @keyframes shuffle {
+        0% {
+          transform: scale(1);
+        }
+        25% {
+          transform: scale(1.1);
+        }
+        50% {
+          transform: scale(1);
+        }
+        75% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .shuffle {
+        animation: shuffle 0.5s; /* Adjust duration as needed */
+      }
+
+      .pulse {
+        animation: pulse 0.5s; /* Ensure pulse animation is defined */
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body class="crt">
+    <audio id="game-audio" src="game-st.mp3" preload="auto" autoplay></audio>
+    <!-- Replace with your audio file path -->
+
+    <div class="volume-control">
+      <label for="volume" class="text-white">Volume:</label>
+      <input type="range" id="volume" min="0" max="1" step="0.1" value="1" />
+    </div>
+
+    <div class="container">
+      <h1>Elemental Clash</h1>
+      <div class="score-board">
+        <div class="score">
+          <h2>Player: <span class="player-score">0</span></h2>
+        </div>
+        <div class="score">
+          <h2>CPU: <span class="enemy-score">0</span></h2>
+        </div>
+      </div>
+
+      <div class="game-area">
+        <div class="player">
+          <img
+            src="images/fire.png"
+            alt="Fire"
+            width="100"
+            style="display: none"
+          />
+          <img
+            src="images/plant.png"
+            alt="Plant"
+            width="100"
+            style="display: none"
+          />
+          <img
+            src="images/water.png"
+            alt="Water"
+            width="100"
+            style="display: none"
+          />
+        </div>
+        <div class="computer">
+          <img
+            src="images/fire.png"
+            alt="Fire"
+            width="100"
+            style="display: none"
+          />
+          <img
+            src="images/plant.png"
+            alt="Plant"
+            width="100"
+            style="display: none"
+          />
+          <img
+            src="images/water.png"
+            alt="Water"
+            width="100"
+            style="display: none"
+          />
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button onclick="playGame('fire')" id="fire-btn">
+          <img src="images/fire.png" alt="Fire" width="50" />
+        </button>
+        <button onclick="playGame('plant')" id="plant-btn">
+          <img src="images/plant.png" alt="Plant" width="50" />
+        </button>
+        <button onclick="playGame('water')" id="water-btn">
+          <img src="images/water.png" alt="Water" width="50" />
+        </button>
+      </div>
+
+      <button id="game-over-btn" style="display: none" onclick="gameOver()">
+        GAME OVER
+      </button>
+    </div>
+
+    <script>
+      let playerScore = 0;
+      let computerScore = 0;
+      let wins = 0;
+      let losses = 0;
+      let highestWinStreak = 0;
+      let currentWinStreak = 0;
+
+      function playGame(playerChoice) {
+        const choices = ["fire", "plant", "water"];
+        const computerChoice =
+          choices[Math.floor(Math.random() * choices.length)];
+
+        const playerDisplay = document.querySelector(".player");
+        const computerDisplay = document.querySelector(".computer");
+
+        // Disable buttons while thinking
+        document.querySelectorAll(".buttons button").forEach((btn) => {
+          btn.disabled = true;
+        });
+
+        // Clear previous images
+        playerDisplay
+          .querySelectorAll("img")
+          .forEach((img) => (img.style.display = "none"));
+        computerDisplay
+          .querySelectorAll("img")
+          .forEach((img) => (img.style.display = "none"));
+
+        // Show player's choice immediately
+        playerDisplay.querySelector(
+          `img[alt="${
+            playerChoice.charAt(0).toUpperCase() + playerChoice.slice(1)
+          }"]`
+        ).style.display = "block";
+
+        // Simulate computer thinking
+        setTimeout(() => {
+          // Add shuffle animation to computer display
+          computerDisplay.classList.add("shuffle");
+
+          // Show computer's choice after a delay
+          setTimeout(() => {
+            computerDisplay.querySelector(
+              `img[alt="${
+                computerChoice.charAt(0).toUpperCase() + computerChoice.slice(1)
+              }"]`
+            ).style.display = "block";
+
+            // Remove shuffle class and force reflow
+            computerDisplay.classList.remove("shuffle");
+            void computerDisplay.offsetWidth; // Trigger reflow
+
+            // Add pulse class
+            computerDisplay.classList.add("pulse");
+
+            // Remove pulse class after animation duration
+            setTimeout(() => {
+              computerDisplay.classList.remove("pulse");
+            }, 500); // Adjust duration as needed
+
+            const result = getWinner(playerChoice, computerChoice);
+
+            if (result === "player") {
+              playerWins();
+            } else if (result === "computer") {
+              computerWins();
+            } else {
+              tie();
+            }
+
+            updateScores();
+
+            // Re-enable buttons after thinking
+            document.querySelectorAll(".buttons button").forEach((btn) => {
+              btn.disabled = false;
+            });
+          }, 500); // 1 second delay for computer's move
+        }, 500); // Initial delay for thinking
+      }
+
+      function getWinner(player, computer) {
+        if (player === computer) return "tie";
+        if (
+          (player === "fire" && computer === "plant") ||
+          (player === "plant" && computer === "water") ||
+          (player === "water" && computer === "fire")
+        ) {
+          return "player";
+        }
+        return "computer";
+      }
+
+      function updateScores() {
+        document.querySelector(".player-score").textContent = playerScore;
+        document.querySelector(".enemy-score").textContent = computerScore;
+
+        // Check if either score reaches 5
+        if (playerScore >= 5 || computerScore >= 5) {
+          gameOver(); // Call gameOver directly
+        }
+      }
+
+      function playerWins() {
+        playerScore++;
+        wins++;
+        currentWinStreak++;
+        highestWinStreak = Math.max(highestWinStreak, currentWinStreak);
+      }
+
+      function computerWins() {
+        computerScore++;
+        losses++;
+        currentWinStreak = 0;
+      }
+
+      function tie() {
+        // No score change on tie
+      }
+
+      function gameOver() {
+        // Store scores and stats in local storage
+        localStorage.setItem("wins", wins);
+        localStorage.setItem("losses", losses);
+        localStorage.setItem("highestWinStreak", highestWinStreak);
+
+        resetGame();
+
+        // Create a popup message
+        const message = document.createElement("div");
+        message.className = "popup-message";
+        // Update the message based on final scores and total wins/losses
+        message.textContent = `${
+          wins > losses ? "YOU WIN" : "YOU LOSE"
+        }! FINAL SCORE: ${wins} - ${losses}`;
+
+        // Add audio playback when the message is shown
+        const winLoseAudio = new Audio("victory.mp3"); // Replace with your audio file path
+        winLoseAudio.play();
+
+        document.body.appendChild(message);
+
+        // Add a delay before redirecting to ranking.html
+        setTimeout(() => {
+          window.location.href = "ranking.html"; // Redirect to ranking page
+        }, 6000); // Delay of 6000 milliseconds (6 seconds)
+      }
+
+      function resetGame() {
+        playerScore = 0;
+        computerScore = 0;
+        currentWinStreak = 0;
+        updateScores();
+        document.querySelector(".player").textContent = "Player Move";
+        document.querySelector(".computer").textContent = "CPU Move";
+        document.getElementById("game-over-btn").style.display = "none";
+      }
+
+      // Volume control functionality
+      const audio = document.getElementById("game-audio");
+      const volumeControl = document.getElementById("volume");
+
+      volumeControl.addEventListener("input", (event) => {
+        audio.volume = event.target.value;
+      });
+    </script>
+  </body>
+</html>
