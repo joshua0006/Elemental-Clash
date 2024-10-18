@@ -3,12 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Elemental Clash</title>
+    <title>Retro Loading Screen</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="transition.css" />
     <style>
       :root {
         --primary-color: #00ff00;
@@ -33,17 +32,17 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        text-align: center;
         overflow: hidden;
       }
 
       .container {
+        text-align: center;
         position: relative;
         z-index: 1;
       }
 
       h1 {
-        font-size: 3rem;
+        font-size: 2rem;
         margin-bottom: 2rem;
         color: var(--primary-color);
         text-shadow: 4px 4px var(--secondary-color);
@@ -68,55 +67,26 @@
         }
       }
 
-      .btn {
-        display: inline-block;
-        background-color: var(--accent-color);
-        color: var(--background-color);
-        font-size: 1.5rem;
-        padding: 1rem 2rem;
-        margin: 1rem;
-        border: none;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.3s;
+      .loading-bar {
+        width: 300px;
+        height: 20px;
+        background-color: var(--text-color);
+        margin-top: 2rem;
         position: relative;
         overflow: hidden;
       }
 
-      .btn::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
+      .progress {
+        width: 0%;
         height: 100%;
-        background: linear-gradient(
-          120deg,
-          transparent,
-          rgba(255, 255, 255, 0.3),
-          transparent
-        );
-        transition: all 0.6s;
-      }
-
-      .btn:hover::before {
-        left: 100%;
-      }
-
-      .btn:active {
-        transform: scale(0.95);
-      }
-
-      .start-btn {
         background-color: var(--primary-color);
+        transition: width 0.5s ease;
       }
 
-      .view-ranking-btn {
-        background-color: var(--secondary-color);
-      }
-
-      .guide-btn {
-        background-color: var(--accent-color);
+      .loading-text {
+        margin-top: 1rem;
+        font-size: 1rem;
+        color: var(--accent-color);
       }
 
       .retro-bg {
@@ -171,74 +141,66 @@
         background-size: 100% 2px, 3px 100%;
         pointer-events: none;
       }
-
-      @media (max-width: 600px) {
-        h1 {
-          font-size: 2rem;
-        }
-
-        .btn {
-          font-size: 1rem;
-          padding: 0.75rem 1.5rem;
-        }
-      }
-
-      .volume-control {
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        background-color: rgba(0, 0, 0, 0.7);
-        border: 2px solid var(--primary-color);
-        padding: 0.5rem;
-        border-radius: 5px;
-        z-index: 3; /* Ensure it is above other elements */
-      }
-
-      .volume-control input {
-        width: 100px;
-      }
     </style>
   </head>
   <body class="crt">
-    <audio autoplay loop>
-      <source src="soundtrack.mp3" type="audio/mpeg" preload="auto" autoplay />
-    </audio>
     <div class="retro-bg"></div>
     <div class="container">
-      <h1>Elemental Clash</h1>
-      <nav>
-        <a href="start-game.html" class="btn start-btn">Start Game</a>
-        <a href="view-ranking.html" class="btn view-ranking-btn"
-          >View Ranking</a
-        >
-        <a href="guide.html" class="btn guide-btn">Guide</a>
-        <!-- New Guide Button -->
-      </nav>
+      <h1>LOADING...</h1>
+      <div class="loading-bar">
+        <div class="progress"></div>
+      </div>
+      <p class="loading-text">Initializing...</p>
     </div>
-    <div class="volume-control">
-      <label for="volume">Volume:</label>
-      <input type="range" id="volume" min="0" max="1" step="0.1" value="1" />
-    </div>
+
     <script>
-      // Add audio for button hover
-      const buttons = document.querySelectorAll(".btn");
-      const hoverSound = new Audio(
-        "data:audio/wav;base64,UklGRnQGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YU8GAACBgIF/gn6Dfn+BfX6Af4B+gIF/gn2Cf4GMjY2OkI+Oj42OjY2MjYyNjY2Oj4+PjY6Nj4+Qi4qJiYiIiYiJioqLioqLi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYg="
-      );
+      const progress = document.querySelector(".progress");
+      const loadingText = document.querySelector(".loading-text");
+      const loadingMessages = [
+        "Initializing...",
+        "Loading assets...",
+        "Calibrating flux capacitor...",
+        "Generating random encounters...",
+        "Applying retro filters...",
+        "Synchronizing timelines...",
+        "Charging laser cannons...",
+        "Reticulating splines...",
+      ];
 
-      buttons.forEach((button) => {
-        button.addEventListener("mouseover", () => {
-          hoverSound.currentTime = 0;
-          hoverSound.play();
-        });
+      let currentProgress = 0;
+      let messageIndex = 0;
+      let loadingComplete = false; // Flag to track loading status
+
+      function updateLoading() {
+        if (currentProgress < 100) {
+          currentProgress += Math.random() * 10;
+          if (currentProgress > 100) currentProgress = 100;
+
+          progress.style.width = `${currentProgress}%`;
+
+          if (
+            currentProgress % 12.5 < 1 &&
+            messageIndex < loadingMessages.length - 1
+          ) {
+            messageIndex++;
+            loadingText.textContent = loadingMessages[messageIndex];
+          }
+
+          setTimeout(updateLoading, Math.random() * 500 + 200);
+        } else {
+          loadingText.textContent = "Press START to begin!";
+          loadingComplete = true; // Set loading as complete
+        }
+      }
+
+      // Add event listener for keydown event
+      document.addEventListener("keydown", (event) => {
+        if (loadingComplete && event.key === "Enter") {
+          window.location.href = "main-page.html"; // Redirect to main-page.html
+        }
       });
 
-      const audio = document.querySelector("audio");
-      const volumeControl = document.getElementById("volume");
-
-      volumeControl.addEventListener("input", (event) => {
-        audio.volume = event.target.value;
-      });
+      updateLoading();
     </script>
   </body>
 </html>
