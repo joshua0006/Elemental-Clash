@@ -1,134 +1,162 @@
-const buttons = document.querySelectorAll(".buttons button");
-const playerBox = document.querySelector(".box.player"); // Select player box
-const enemyBox = document.querySelector(".box.enemy"); // Select enemy box
-const resultDisplay = document.createElement("div"); // Create a div to display the result
-document.body.appendChild(resultDisplay); // Append the result display to the body
+// Game Variables
+let playerScore = 0;
+let aiScore = 0;
+let playerMove = "";
+let aiMove = "";
+let moves = ["fire", "plant", "water"];
 
-// Reset scores and win streaks
-let playerScoreNumber = 0;
-let enemyScoreNumber = 0;
-let currentWinStreak = 0; // Track current win streak
-let highestWinStreak = 0; // Track highest win streak
+// Get DOM Elements
+const playerScoreEl = document.getElementById("player-score");
+const aiScoreEl = document.getElementById("ai-score");
+const resultMessageEl = document.getElementById("result-message");
+const turnIndicatorEl = document.querySelector(".turn-indicator");
+const playerMoveEl = document.getElementById("player-move");
+const aiMoveEl = document.getElementById("ai-move");
+const nextRoundBtn = document.getElementById("next-round");
+const elementButtons = document.querySelectorAll(".element-button");
+const gameAudio = document.getElementById("game-audio");
+const volumeControl = document.getElementById("volume");
 
-// Update the displayed scores initially
-function updateScoresDisplay() {
-  document.querySelector(".player-score").textContent = playerScoreNumber;
-  document.querySelector(".enemy-score").textContent = enemyScoreNumber;
-}
+// Set Volume Control
+volumeControl.addEventListener("input", (event) => {
+  gameAudio.volume = event.target.value;
+});
 
-buttons.forEach((button) => {
+// Add click event listeners to the element buttons
+elementButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    const playerSelection = button.textContent; // Get player's selection
-    const computerSelection = getComputerChoice(); // Get computer's selection
-
-    // Update the player and enemy boxes with the selected moves
-    playerBox.textContent = playerSelection; // Update player box with player's move
-    enemyBox.textContent = computerSelection; // Update enemy box with computer's move
-
-    // Determine the result of the round
-    const result = playRound(playerSelection, computerSelection);
-    resultDisplay.textContent = result; // Display the result in the result display div
-
-    // Check if either player reaches a score of 5
-    if (playerScoreNumber === 5 || enemyScoreNumber === 5) {
-      resetScores();
-    }
+    const playerSelection = button.id;
+    playRound(playerSelection);
   });
 });
 
-function getComputerChoice() {
-  const choices = ["✌", "✊", "🤚"]; // Choices for computer
-  const randomIndex = Math.floor(Math.random() * choices.length);
-  return choices[randomIndex]; // Return random choice
+// Function to play a round
+function playRound(playerSelection) {
+  playerMove = playerSelection;
+
+  // Disable buttons during the round
+  toggleButtons(false);
+
+  // Show player move and animate
+  displayMove(playerMoveEl, playerMove);
+  playerMoveEl.classList.add("pulse");
+
+  // AI randomly selects a move after a delay
+  setTimeout(() => {
+    aiMove = getRandomMove();
+    displayMove(aiMoveEl, aiMove);
+    aiMoveEl.classList.add("pulse");
+
+    // Check winner and update score
+    const winner = determineWinner(playerMove, aiMove);
+    updateScore(winner);
+
+    // Display result message
+    displayResult(winner);
+
+    // Show next round button
+    nextRoundBtn.style.display = "block";
+
+    // Enable Next Round button
+    nextRoundBtn.addEventListener("click", resetRound);
+  }, 1000); // 1 second delay for AI move
 }
 
-function playRound(playerSelection, computerSelection) {
-  if (playerSelection === computerSelection) {
-    return "It's a tie!";
+// Get a random move for the AI
+function getRandomMove() {
+  const randomIndex = Math.floor(Math.random() * moves.length);
+  return moves[randomIndex];
+}
+
+// Function to determine the winner
+function determineWinner(player, ai) {
+  if (player === ai) {
+    return "draw";
   } else if (
-    (computerSelection === "✊" && playerSelection === "🤚") || // Rock beats Scissors
-    (computerSelection === "✌" && playerSelection === "✊") || // Paper beats Rock
-    (computerSelection === "🤚" && playerSelection === "✌") // Scissors beats Paper
+    (player === "fire" && ai === "plant") ||
+    (player === "plant" && ai === "water") ||
+    (player === "water" && ai === "fire")
   ) {
-    playerScoreNumber++;
-    currentWinStreak++; // Increment current win streak
-    // Update highest win streak if current is greater
-    if (currentWinStreak > highestWinStreak) {
-      highestWinStreak = currentWinStreak; // Update highest win streak
-    }
-    updateScoresDisplay(); // Update the displayed scores
-    return "You win!";
+    return "player";
   } else {
-    enemyScoreNumber++;
-    currentWinStreak = 0; // Reset current win streak on loss
-    updateScoresDisplay(); // Update the displayed scores
-    return "You lose!";
+    return "ai";
   }
 }
 
-function resetScores() {
-  // Save scores and highest win streak to local storage before redirecting
-  localStorage.setItem("playerWins", playerScoreNumber);
-  localStorage.setItem("computerWins", enemyScoreNumber);
-  localStorage.setItem("highestWinStreak", highestWinStreak); // Save highest win streak
-
-  // Redirect to ranking page immediately
-  window.location.href = "ranking.html"; // Redirect to ranking page
+// Update score based on winner
+function updateScore(winner) {
+  if (winner === "player") {
+    playerScore++;
+    playerScoreEl.textContent = playerScore;
+  } else if (winner === "ai") {
+    aiScore++;
+    aiScoreEl.textContent = aiScore;
+  }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const elements = document.querySelectorAll(".fade-in, .slide-in");
-  elements.forEach((element) => {
-    element.classList.add("fade-in-active"); // For fade-in
-    element.classList.add("slide-in-active"); // For slide-in
+// Display result message
+function displayResult(winner) {
+  let message = "";
+  if (winner === "draw") {
+    message = "It's a Draw!";
+  } else if (winner === "player") {
+    message = "You Win!";
+  } else {
+    message = "AI Wins!";
+  }
+  resultMessageEl.textContent = message;
+  turnIndicatorEl.textContent = message;
+}
+
+// Display the selected move
+function displayMove(element, move) {
+  const img = element.querySelector(
+    `img[alt='${move.charAt(0).toUpperCase() + move.slice(1)}']`
+  );
+  element
+    .querySelectorAll("img")
+    .forEach((img) => (img.style.display = "none"));
+  img.style.display = "block";
+}
+
+// Toggle buttons
+function toggleButtons(enable) {
+  elementButtons.forEach((button) => {
+    button.disabled = !enable;
   });
+}
 
-  // Example function to handle game over
-  function gameOver() {
-    // Show the username input form
-    const usernameInput = document.getElementById("username-input");
-    usernameInput.style.display = "block";
-  }
+// Reset the round
+function resetRound() {
+  playerMove = "";
+  aiMove = "";
 
-  // Handle username submission
-  const saveUsernameButton = document.getElementById("save-username");
-  if (saveUsernameButton) {
-    saveUsernameButton.addEventListener("click", () => {
-      const usernameInput = document.getElementById("username");
-      const username = usernameInput.value.trim();
+  // Hide moves
+  playerMoveEl
+    .querySelectorAll("img")
+    .forEach((img) => (img.style.display = "none"));
+  aiMoveEl
+    .querySelectorAll("img")
+    .forEach((img) => (img.style.display = "none"));
 
-      if (username) {
-        // Save the username (you can also save it in local storage if needed)
-        console.log("Username saved:", username);
-        usernameInput.disabled = true; // Disable input after saving
-        saveUsernameButton.disabled = true; // Disable button after saving
-        // Optionally, you can hide the input after saving
-        usernameInput.style.display = "none";
-      } else {
-        alert("Please enter a valid username.");
-      }
-    });
-  }
+  // Hide result message
+  resultMessageEl.textContent = "";
 
-  // Call this function when the game ends
-  // For example, you might call it when a button is clicked or a condition is met
-  // gameOver(); // Uncomment this line to test the redirection
+  // Hide next round button
+  nextRoundBtn.style.display = "none";
 
-  // Assuming you have a button to end the game
-  const gameOverButton = document.getElementById("game-over-btn");
-  if (gameOverButton) {
-    gameOverButton.addEventListener("click", gameOver);
-  }
+  // Enable buttons
+  toggleButtons(true);
 
-  // Example game logic
-  function checkGameOver() {
-    // Your logic to determine if the game is over
-    const isGameOver = true; // Replace with actual condition
+  // Reset animations
+  playerMoveEl.classList.remove("pulse");
+  aiMoveEl.classList.remove("pulse");
 
-    if (isGameOver) {
-      gameOver(); // Call the game over function
-    }
-  }
+  // Reset turn indicator
+  turnIndicatorEl.textContent = "Your Turn";
+}
 
-  // Call checkGameOver at appropriate times in your game logic
-});
+// Helper function to return the capitalized string
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

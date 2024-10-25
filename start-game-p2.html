@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retro Elemental Clash - 2 Players</title>
     <link rel="stylesheet" href="transition.css" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
@@ -204,33 +207,12 @@
         }
       }
 
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.05);
-          opacity: 0.8;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-
       .shuffle {
         animation: shuffle 0.5s;
       }
-
-      .pulse {
-        animation: pulse 0.5s;
-      }
-
       .add-bg {
         background-color: var(--secondary-color);
       }
-
       .volume-control {
         position: fixed;
         top: 1rem;
@@ -244,7 +226,6 @@
       .volume-control input {
         width: 100px;
       }
-
       .back-button {
         display: inline-block;
         position: fixed;
@@ -263,15 +244,10 @@
       .back-button:hover {
         background-color: var(--secondary-color);
       }
-      .game-area {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        margin: 20px 0;
-      }
     </style>
   </head>
   <body class="crt">
+    <a href="main-page.html" class="back-button">Back to Main Page</a>
     <audio
       id="game-audio"
       src="./sounds/game-st.mp3"
@@ -283,38 +259,26 @@
       <label for="volume" class="text-white">Volume:</label>
       <input type="range" id="volume" min="0" max="1" step="0.1" value="1" />
     </div>
-
     <div class="container">
-      <h1>Elemental Clash - VS AI</h1>
+      <h1>
+        Elemental Clash <br />
+        2 Players
+      </h1>
+
       <div class="score-board">
         <div class="score">
-          <h2>Player: <span id="player-score">0</span></h2>
+          <h2>Player 1: <span id="player1-score">0</span></h2>
         </div>
         <div class="score">
-          <h2>AI: <span id="ai-score">0</span></h2>
+          <h2>Player 2: <span id="player2-score">0</span></h2>
         </div>
       </div>
 
-      <div class="game-area">
-        <div id="player-move" class="player move-box">
-          <img
-            src="images/fire.png"
-            alt="Fire"
-            width="100"
-            style="display: none"
-          />
-          <img
-            src="images/plant.png"
-            alt="Plant"
-            width="100"
-            style="display: none"
-          />
-          <img
-            src="images/water.png"
-            alt="Water"
-            width="100"
-            style="display: none"
-          />
+      <div class="turn-indicator" id="turn-indicator">Player 1's Turn</div>
+
+      <div class="move-area">
+        <div class="move-box" id="player1-move-box">
+          <div class="hidden-move" id="player1-move"></div>
         </div>
         <div>
           <video
@@ -327,55 +291,154 @@
             <source src="video/versus-screen.mp4" type="video/mp4" />
           </video>
         </div>
-        <div id="ai-move" class="ai move-box">
-          <img
-            src="images/fire.png"
-            alt="Fire"
-            width="100"
-            style="display: none"
-          />
-          <img
-            src="images/plant.png"
-            alt="Plant"
-            width="100"
-            style="display: none"
-          />
-          <img
-            src="images/water.png"
-            alt="Water"
-            width="100"
-            style="display: none"
-          />
+        <div class="move-box" id="player2-move-box">
+          <div class="hidden-move" id="player2-move"></div>
         </div>
       </div>
 
-      <div class="turn-indicator">Your Turn</div>
-
-      <div class="element-buttons">
-        <button class="element-button" id="fire">
-          <img src="images/fire.png" alt="Fire Element" />
-          <br />
-          Fire
+      <div class="element-buttons" id="element-buttons">
+        <button
+          class="element-button playSoundButton"
+          onclick="makeMove('fire')"
+        >
+          <img src="/images/fire.png" alt="Fire" />
         </button>
-        <button class="element-button" id="plant">
-          <img src="images/plant.png" alt="Plant Element" />
-          <br />
-          Plant
+        <button
+          class="element-button playSoundButton"
+          onclick="makeMove('plant')"
+        >
+          <img src="/images/plant.png" alt="Plant" />
         </button>
-        <button class="element-button" id="water">
-          <img src="images/water.png" alt="Water Element" />
-          <br />
-          Water
+        <button
+          class="element-button playSoundButton"
+          onclick="makeMove('water')"
+        >
+          <img src="/images/water.png" alt="Water" />
         </button>
       </div>
 
       <div class="result-message" id="result-message"></div>
-      <button class="next-round-btn" id="next-round">Next Round</button>
+      <button
+        class="next-round-btn"
+        id="next-round-btn"
+        onclick="startNewRound()"
+      >
+        Next Round
+      </button>
     </div>
 
-    <a href="main-page.html" class="back-button" id="back-button"
-      >Back to main menu</a
-    >
-    <script src="script.js"></script>
+    <script>
+      let currentPlayer = 1;
+      let player1Move = null;
+      let player2Move = null;
+      let player1Score = 0;
+      let player2Score = 0;
+
+      function makeMove(element) {
+        const moveBox = document.getElementById(`player${currentPlayer}-move`);
+        const playerMoveBox = document.getElementById(
+          `player${currentPlayer}-move-box`
+        );
+
+        playerMoveBox.classList.add("add-bg");
+        moveBox.innerHTML = `<img src="/images/${element}.png" alt="${element}" style="width: 100px; height: 100px" />`;
+        moveBox.classList.add("hidden-move");
+
+        if (currentPlayer === 1) {
+          player1Move = element;
+          currentPlayer = 2;
+          document.getElementById("turn-indicator").textContent =
+            "Player 2's Turn";
+        } else {
+          player2Move = element;
+          document.getElementById("turn-indicator").textContent =
+            "Round Complete!";
+          revealMoves();
+        }
+      }
+
+      function revealMoves() {
+        const player1MoveBox = document.getElementById("player1-move");
+        const player2MoveBox = document.getElementById("player2-move");
+
+        const moveBox1 = document.getElementById("player1-move-box");
+        const moveBox2 = document.getElementById("player2-move-box");
+
+        player1MoveBox.classList.remove("hidden-move");
+        player2MoveBox.classList.remove("hidden-move");
+
+        player1MoveBox.classList.add("shuffle");
+        player2MoveBox.classList.add("shuffle");
+
+        setTimeout(() => {
+          player1MoveBox.classList.remove("shuffle");
+          player2MoveBox.classList.remove("shuffle");
+          moveBox1.classList.remove("add-bg");
+          moveBox2.classList.remove("add-bg");
+          determineWinner();
+        }, 500);
+
+        document.getElementById("element-buttons").style.display = "none";
+        document.getElementById("next-round-btn").style.display = "block";
+      }
+
+      function determineWinner() {
+        const resultMessage = document.getElementById("result-message");
+
+        if (player1Move === player2Move) {
+          resultMessage.textContent = "It's a tie!";
+          return;
+        }
+
+        const rules = {
+          fire: "plant",
+          plant: "water",
+          water: "fire",
+        };
+
+        if (rules[player1Move] === player2Move) {
+          resultMessage.textContent = "Player 1 wins this round!";
+          player1Score++;
+        } else {
+          resultMessage.textContent = "Player 2 wins this round!";
+          player2Score++;
+        }
+
+        document.getElementById("player1-score").textContent = player1Score;
+        document.getElementById("player2-score").textContent = player2Score;
+      }
+
+      function startNewRound() {
+        player1Move = null;
+        player2Move = null;
+        currentPlayer = 1;
+
+        document.getElementById("player1-move").innerHTML = "";
+        document.getElementById("player2-move").innerHTML = "";
+        document.getElementById("player1-move").classList.add("hidden-move");
+        document.getElementById("player2-move").classList.add("hidden-move");
+        document.getElementById("turn-indicator").textContent =
+          "Player 1's Turn";
+        document.getElementById("result-message").textContent = "";
+        document.getElementById("element-buttons").style.display = "flex";
+        document.getElementById("next-round-btn").style.display = "none";
+      }
+
+      // Volume control functionality
+      const audio = document.getElementById("game-audio");
+      const volumeControl = document.getElementById("volume");
+
+      volumeControl.addEventListener("input", (event) => {
+        audio.volume = event.target.value;
+      });
+      function playSound() {
+        const audio = new Audio("./sounds/press-button.mp3");
+        audio.play();
+      }
+
+      document.querySelectorAll(".playSoundButton").forEach((button) => {
+        button.addEventListener("click", playSound);
+      });
+    </script>
   </body>
 </html>

@@ -8,7 +8,6 @@
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="transition.css" />
     <style>
       :root {
         --primary-color: #00ff00;
@@ -70,8 +69,6 @@
 
       .btn {
         display: inline-block;
-        background-color: var(--accent-color);
-        color: var(--background-color);
         font-size: 1.5rem;
         padding: 1rem 2rem;
         margin: 1rem;
@@ -81,6 +78,7 @@
         transition: all 0.3s;
         position: relative;
         overflow: hidden;
+        color: var(--background-color);
       }
 
       .btn::before {
@@ -117,6 +115,17 @@
 
       .guide-btn {
         background-color: var(--accent-color);
+      }
+
+      .menu-buttons,
+      .game-mode-buttons {
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      .hidden {
+        display: none;
+        opacity: 0;
       }
 
       .retro-bg {
@@ -172,6 +181,21 @@
         pointer-events: none;
       }
 
+      .volume-control {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        background-color: rgba(0, 0, 0, 0.7);
+        border: 2px solid var(--primary-color);
+        padding: 0.5rem;
+        border-radius: 5px;
+        z-index: 3;
+      }
+
+      .volume-control input {
+        width: 100px;
+      }
+
       @media (max-width: 600px) {
         h1 {
           font-size: 2rem;
@@ -182,48 +206,43 @@
           padding: 0.75rem 1.5rem;
         }
       }
-
-      .volume-control {
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        background-color: rgba(0, 0, 0, 0.7);
-        border: 2px solid var(--primary-color);
-        padding: 0.5rem;
-        border-radius: 5px;
-        z-index: 3; /* Ensure it is above other elements */
-      }
-
-      .volume-control input {
-        width: 100px;
-      }
     </style>
   </head>
   <body class="crt">
     <audio autoplay loop>
-      <source src="soundtrack.mp3" type="audio/mpeg" preload="auto" autoplay />
+      <source src="./sounds/soundtrack.mp3" type="audio/mpeg" />
     </audio>
     <div class="retro-bg"></div>
     <div class="container">
       <h1>Elemental Clash</h1>
       <nav>
-        <a href="start-game.html" class="btn start-btn">Start Game</a>
-        <a href="view-ranking.html" class="btn view-ranking-btn"
-          >View Ranking</a
-        >
-        <a href="guide.html" class="btn guide-btn">Guide</a>
-        <!-- New Guide Button -->
+        <div class="menu-buttons">
+          <a href="#" class="btn start-btn" onclick="showGameModes(event)"
+            >Start Game</a
+          >
+          <a href="view-ranking.html" class="btn view-ranking-btn"
+            >View Ranking</a
+          >
+          <a href="guide.html" class="btn guide-btn">Guide</a>
+        </div>
+        <div class="game-mode-buttons hidden">
+          <a href="start-game.html" class="btn start-btn">VS Computer</a>
+          <a href="start-game-p2.html" class="btn view-ranking-btn"
+            >2 Players</a
+          >
+        </div>
       </nav>
     </div>
     <div class="volume-control">
       <label for="volume">Volume:</label>
       <input type="range" id="volume" min="0" max="1" step="0.1" value="1" />
     </div>
+
     <script>
-      // Add audio for button hover
+      // Button hover sound
       const buttons = document.querySelectorAll(".btn");
       const hoverSound = new Audio(
-        "data:audio/wav;base64,UklGRnQGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YU8GAACBgIF/gn6Dfn+BfX6Af4B+gIF/gn2Cf4GMjY2OkI+Oj42OjY2MjYyNjY2Oj4+PjY6Nj4+Qi4qJiYiIiYiJioqLioqLi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYg="
+        "data:audio/wav;base64,UklGRnQGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YU8GAACBgIF/gn6Dfn+BfX6Af4B+gIF/gn2Cf4GMjY2OkI+Oj42OjY2MjYyNjY2Oj4+PjY6Nj4+Qi4qJiYiIiYiJioqLioqLi4uKiouKi4uKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKioqJiYiIiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYiJiYiJiYmKioqLioqLi4qKi4qLi4qKi4qKiomJiImJiImJiYqKiouKiouLioqLiouLioqLioqKiYmIiYmIiYmJioqKi4qKi4uKiouKi4uKiouKioqJiYg="
       );
 
       buttons.forEach((button) => {
@@ -233,12 +252,29 @@
         });
       });
 
+      // Volume control
       const audio = document.querySelector("audio");
       const volumeControl = document.getElementById("volume");
 
       volumeControl.addEventListener("input", (event) => {
         audio.volume = event.target.value;
       });
+
+      // Menu transition
+      function showGameModes(event) {
+        event.preventDefault();
+        const menuButtons = document.querySelector(".menu-buttons");
+        const gameModeButtons = document.querySelector(".game-mode-buttons");
+
+        menuButtons.style.opacity = "0";
+        setTimeout(() => {
+          menuButtons.classList.add("hidden");
+          gameModeButtons.classList.remove("hidden");
+          setTimeout(() => {
+            gameModeButtons.style.opacity = "1";
+          }, 50);
+        }, 500);
+      }
     </script>
   </body>
 </html>
