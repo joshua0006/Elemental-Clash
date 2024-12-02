@@ -244,6 +244,42 @@
       .back-button:hover {
         background-color: var(--secondary-color);
       }
+
+      .game-over-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--background-color);
+        border: 4px solid var(--border-color);
+        padding: 2rem;
+        z-index: 1000;
+        text-align: center;
+        box-shadow: 0 0 20px var(--primary-color);
+      }
+
+      .game-over-modal h2 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+
+      .play-again-btn {
+        font-family: "Press Start 2P", cursive;
+        font-size: 1rem;
+        padding: 1rem 2rem;
+        background-color: var(--primary-color);
+        color: var(--background-color);
+        border: 4px solid var(--secondary-color);
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 1rem;
+      }
+
+      .play-again-btn:hover {
+        background-color: var(--secondary-color);
+        box-shadow: 0 0 15px var(--secondary-color);
+      }
     </style>
   </head>
   <body class="crt">
@@ -325,120 +361,23 @@
       >
         Next Round
       </button>
+
+      <div class="game-over-modal" id="game-over-modal">
+        <h2 id="winner-text"></h2>
+        <button class="play-again-btn" onclick="resetGame()">Play Again</button>
+        <a
+          href="ranking.html"
+          class="play-again-btn"
+          style="
+            display: inline-block;
+            text-decoration: none;
+            margin-left: 1rem;
+          "
+          >Record Score</a
+        >
+      </div>
     </div>
 
-    <script>
-      let currentPlayer = 1;
-      let player1Move = null;
-      let player2Move = null;
-      let player1Score = 0;
-      let player2Score = 0;
-
-      function makeMove(element) {
-        const moveBox = document.getElementById(`player${currentPlayer}-move`);
-        const playerMoveBox = document.getElementById(
-          `player${currentPlayer}-move-box`
-        );
-
-        playerMoveBox.classList.add("add-bg");
-        moveBox.innerHTML = `<img src="/images/${element}.png" alt="${element}" style="width: 100px; height: 100px" />`;
-        moveBox.classList.add("hidden-move");
-
-        if (currentPlayer === 1) {
-          player1Move = element;
-          currentPlayer = 2;
-          document.getElementById("turn-indicator").textContent =
-            "Player 2's Turn";
-        } else {
-          player2Move = element;
-          document.getElementById("turn-indicator").textContent =
-            "Round Complete!";
-          revealMoves();
-        }
-      }
-
-      function revealMoves() {
-        const player1MoveBox = document.getElementById("player1-move");
-        const player2MoveBox = document.getElementById("player2-move");
-
-        const moveBox1 = document.getElementById("player1-move-box");
-        const moveBox2 = document.getElementById("player2-move-box");
-
-        player1MoveBox.classList.remove("hidden-move");
-        player2MoveBox.classList.remove("hidden-move");
-
-        player1MoveBox.classList.add("shuffle");
-        player2MoveBox.classList.add("shuffle");
-
-        setTimeout(() => {
-          player1MoveBox.classList.remove("shuffle");
-          player2MoveBox.classList.remove("shuffle");
-          moveBox1.classList.remove("add-bg");
-          moveBox2.classList.remove("add-bg");
-          determineWinner();
-        }, 500);
-
-        document.getElementById("element-buttons").style.display = "none";
-        document.getElementById("next-round-btn").style.display = "block";
-      }
-
-      function determineWinner() {
-        const resultMessage = document.getElementById("result-message");
-
-        if (player1Move === player2Move) {
-          resultMessage.textContent = "It's a tie!";
-          return;
-        }
-
-        const rules = {
-          fire: "plant",
-          plant: "water",
-          water: "fire",
-        };
-
-        if (rules[player1Move] === player2Move) {
-          resultMessage.textContent = "Player 1 wins this round!";
-          player1Score++;
-        } else {
-          resultMessage.textContent = "Player 2 wins this round!";
-          player2Score++;
-        }
-
-        document.getElementById("player1-score").textContent = player1Score;
-        document.getElementById("player2-score").textContent = player2Score;
-      }
-
-      function startNewRound() {
-        player1Move = null;
-        player2Move = null;
-        currentPlayer = 1;
-
-        document.getElementById("player1-move").innerHTML = "";
-        document.getElementById("player2-move").innerHTML = "";
-        document.getElementById("player1-move").classList.add("hidden-move");
-        document.getElementById("player2-move").classList.add("hidden-move");
-        document.getElementById("turn-indicator").textContent =
-          "Player 1's Turn";
-        document.getElementById("result-message").textContent = "";
-        document.getElementById("element-buttons").style.display = "flex";
-        document.getElementById("next-round-btn").style.display = "none";
-      }
-
-      // Volume control functionality
-      const audio = document.getElementById("game-audio");
-      const volumeControl = document.getElementById("volume");
-
-      volumeControl.addEventListener("input", (event) => {
-        audio.volume = event.target.value;
-      });
-      function playSound() {
-        const audio = new Audio("./sounds/press-button.mp3");
-        audio.play();
-      }
-
-      document.querySelectorAll(".playSoundButton").forEach((button) => {
-        button.addEventListener("click", playSound);
-      });
-    </script>
+    <script src="script-p2.js"></script>
   </body>
 </html>

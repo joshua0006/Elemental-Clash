@@ -92,6 +92,8 @@ function updateScore(winner) {
     aiScore++;
     aiScoreEl.textContent = aiScore;
   }
+
+  checkGameOver();
 }
 
 // Display result message
@@ -159,4 +161,70 @@ function resetRound() {
 // Helper function to return the capitalized string
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function saveScoreAndRedirect(isPlayerWin) {
+  // Get current scores
+  const wins = isPlayerWin ? 5 : 0;
+  const losses = isPlayerWin ? 0 : 5;
+
+  // Save scores to localStorage
+  localStorage.setItem("wins", wins);
+  localStorage.setItem("losses", losses);
+
+  // Calculate win streak (in this case, it's 5 if player won, 0 if AI won)
+  const winStreak = isPlayerWin ? 5 : 0;
+  localStorage.setItem("highestWinStreak", winStreak);
+
+  // Redirect to ranking page after a short delay
+  setTimeout(() => {
+    window.location.href = "ranking.html";
+  }, 2000); // 2 second delay to show the game over modal
+}
+
+function checkGameOver() {
+  const playerScore = parseInt(
+    document.getElementById("player-score").textContent
+  );
+  const aiScore = parseInt(document.getElementById("ai-score").textContent);
+
+  if (playerScore >= 5 || aiScore >= 5) {
+    const modal = document.getElementById("game-over-modal");
+    const winnerText = document.getElementById("winner-text");
+    const isPlayerWin = playerScore >= 5;
+
+    if (isPlayerWin) {
+      winnerText.textContent = "Congratulations! You Won!";
+    } else {
+      winnerText.textContent = "Game Over! AI Won!";
+    }
+
+    modal.style.display = "block";
+    disableGameButtons(true);
+
+    // Save score and redirect
+    saveScoreAndRedirect(isPlayerWin);
+  }
+}
+
+function resetGame() {
+  document.getElementById("player-score").textContent = "0";
+  document.getElementById("ai-score").textContent = "0";
+  document.getElementById("game-over-modal").style.display = "none";
+  document.getElementById("result-message").textContent = "";
+  disableGameButtons(false);
+
+  // Reset the game state
+  const playerMoveImages = document.querySelectorAll("#player-move img");
+  const aiMoveImages = document.querySelectorAll("#ai-move img");
+
+  playerMoveImages.forEach((img) => (img.style.display = "none"));
+  aiMoveImages.forEach((img) => (img.style.display = "none"));
+}
+
+function disableGameButtons(disabled) {
+  const buttons = document.querySelectorAll(".element-button");
+  buttons.forEach((button) => {
+    button.disabled = disabled;
+  });
 }

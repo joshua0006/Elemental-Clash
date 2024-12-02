@@ -253,36 +253,68 @@
 
     <script>
       let usernameSubmitted = false; // Track if username has been submitted
+      let currentPlayer = 1;
+      let player1Username = "";
 
       document
         .getElementById("submit-username")
         .addEventListener("click", () => {
           const usernameInput = document.getElementById("username");
           const username = usernameInput.value.trim();
+          const needBothPlayers = localStorage.getItem("needBothPlayers");
 
-          // Retrieve scores from local storage
-          const wins = localStorage.getItem("wins")
-            ? parseInt(localStorage.getItem("wins"))
-            : 0;
-          const losses = localStorage.getItem("losses")
-            ? parseInt(localStorage.getItem("losses"))
-            : 0;
-          const highestWinStreak = localStorage.getItem("highestWinStreak")
-            ? parseInt(localStorage.getItem("highestWinStreak"))
-            : 0;
+          if (username && needBothPlayers === "true") {
+            if (currentPlayer === 1) {
+              // Save Player 1's actual scores
+              const storedRankings =
+                JSON.parse(localStorage.getItem("rankings")) || [];
+              storedRankings.push({
+                username,
+                wins: parseInt(localStorage.getItem("player1_wins") || 0),
+                losses: parseInt(localStorage.getItem("player1_losses") || 0),
+                highestWinStreak: parseInt(
+                  localStorage.getItem("player1_winStreak") || 0
+                ),
+              });
+              localStorage.setItem("rankings", JSON.stringify(storedRankings));
 
-          if (username && !usernameSubmitted) {
-            // Save username and scores to local storage
-            const storedRankings =
-              JSON.parse(localStorage.getItem("rankings")) || [];
-            storedRankings.push({ username, wins, losses, highestWinStreak });
-            localStorage.setItem("rankings", JSON.stringify(storedRankings));
-            usernameSubmitted = true; // Mark username as submitted
-            usernameInput.value = ""; // Clear input field
-            loadRankings(); // Refresh rankings
-          } else if (usernameSubmitted) {
-            alert("You can only submit your username once!");
-          } else {
+              // Clear input and update prompt for Player 2
+              usernameInput.value = "";
+              const prompt = document.getElementById("player-prompt");
+              prompt.textContent = `Player 2 (Score: ${localStorage.getItem(
+                "player2_wins"
+              )}), please enter your username!`;
+              currentPlayer = 2;
+            } else {
+              // Save Player 2's actual scores
+              const storedRankings =
+                JSON.parse(localStorage.getItem("rankings")) || [];
+              storedRankings.push({
+                username,
+                wins: parseInt(localStorage.getItem("player2_wins") || 0),
+                losses: parseInt(localStorage.getItem("player2_losses") || 0),
+                highestWinStreak: parseInt(
+                  localStorage.getItem("player2_winStreak") || 0
+                ),
+              });
+              localStorage.setItem("rankings", JSON.stringify(storedRankings));
+
+              // Clear all temporary storage
+              localStorage.removeItem("player1_wins");
+              localStorage.removeItem("player1_losses");
+              localStorage.removeItem("player1_winStreak");
+              localStorage.removeItem("player2_wins");
+              localStorage.removeItem("player2_losses");
+              localStorage.removeItem("player2_winStreak");
+              localStorage.removeItem("isPlayer2Game");
+              localStorage.removeItem("needBothPlayers");
+
+              // Hide input form and update rankings
+              document.querySelector(".username-input").style.display = "none";
+              usernameSubmitted = true;
+              loadRankings();
+            }
+          } else if (!username) {
             alert("Please enter a valid username!");
           }
         });
@@ -324,7 +356,27 @@
         }
       }
 
-      window.onload = loadRankings;
+      window.onload = function () {
+        const needBothPlayers = localStorage.getItem("needBothPlayers");
+
+        if (needBothPlayers === "true" && !usernameSubmitted) {
+          const usernameInput = document.getElementById("username");
+          usernameInput.focus();
+
+          // Show the actual scores in the prompt
+          const player1Wins = localStorage.getItem("player1_wins");
+
+          // Add message for Player 1
+          const message = document.createElement("div");
+          message.id = "player-prompt";
+          message.style.color = "var(--primary-color)";
+          message.style.marginBottom = "1rem";
+          message.textContent = `Player 1 (Score: ${player1Wins}), please enter your username!`;
+          usernameInput.parentNode.insertBefore(message, usernameInput);
+        }
+
+        loadRankings();
+      };
 
       // Removed click sound effect
 
